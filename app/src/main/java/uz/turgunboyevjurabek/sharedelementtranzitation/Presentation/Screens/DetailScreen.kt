@@ -1,9 +1,11 @@
 
 package uz.turgunboyevjurabek.sharedelementtranzitation.Presentation.Screens
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,45 +23,57 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import uz.turgunboyevjurabek.sharedelementtranzitation.Domein.madels.User
+import uz.turgunboyevjurabek.sharedelementtranzitation.utils.SelectedItem
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.DetailScreen(
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    imageId:Int,
-    text:String
+fun DetailScreen(
+    id: Int,
+    user: User,
+    navHostController: NavHostController,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(painter = painterResource(id = imageId),
-            contentDescription =null,
+    with(sharedTransitionScope){
+        Column(
             modifier = Modifier
-                .aspectRatio(16 / 9f)
-                .weight(1f)
-                .sharedElement(
-                    state = rememberSharedContentState(key = "text/$text"),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                    boundsTransform = { initialBounds, targetBounds ->
-                        tween(durationMillis = 1000)
-                    },
-                )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = text,
-            modifier = Modifier
-                .weight(1f)
-                .sharedElement(
-                    state = rememberSharedContentState(key = "text/$text"),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                    boundsTransform = { initialBounds, targetBounds ->
-                        tween(durationMillis = 1000)
-                    },
-                )
-        )
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(painter = painterResource(id = user.image),
+                contentDescription =null,
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .sharedElement(
+                        sharedTransitionScope.rememberSharedContentState(key = "image-$id"),
+                        animatedVisibilityScope = animatedContentScope,
+                        boundsTransform = { initialBounds, targetBounds ->
+                            spring(
+                                dampingRatio = 0.8f,
+                                stiffness = 380f
+                            )
+                        },
+                    )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = user.name,
+                modifier = Modifier
+                    .sharedElement(
+                        sharedTransitionScope.rememberSharedContentState(key = "text-$id"),
+                        animatedVisibilityScope = animatedContentScope,
+                        boundsTransform = { initialBounds, targetBounds ->
+                            spring(
+                                dampingRatio = 0.8f,
+                                stiffness = 380f
+                            )
+                        },
+                    )
+            )
+
+        }
 
     }
 

@@ -15,35 +15,32 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import uz.turgunboyevjurabek.sharedelementtranzitation.Presentation.Screens.DetailScreen
 import uz.turgunboyevjurabek.sharedelementtranzitation.Presentation.Screens.ListScreen
+import uz.turgunboyevjurabek.sharedelementtranzitation.utils.SelectedItem
 
 @Composable
 fun MyNavigation(navController: NavHostController) {
-
     SharedTransitionLayout {
         NavHost(navController = navController, startDestination = "list_screen") {
             composable("list_screen") {
                 ListScreen(
-                    onItemClick = {imageId,text->
-                        navController.navigate("detail_screen/$imageId/$text")
-                    },
-                    animatedVisibilityScope = this
+                    navController = navController,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedContentScope = this@composable,
                 )
             }
-
-
-            composable(route = "detail_screen/{imageId}/{text}",
-                arguments = listOf(
-                    navArgument(name = "imageId"){
-                        type = NavType.IntType
-                    },
-                    navArgument(name = "text") {
-                        type = NavType.StringType
-                    }
+            composable(
+                route = "details/{item}",
+                arguments = listOf(navArgument("item") { type = NavType.IntType })
+            ) {backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("item")
+                val snack = SelectedItem.listUser[id!!]
+                DetailScreen(
+                    id = id,
+                    user = snack,
+                    navHostController = navController,
+                    animatedContentScope = this@composable,
+                    sharedTransitionScope = this@SharedTransitionLayout
                 )
-            ){
-                val imageId = it.arguments?.getInt("imageId")
-                val text = it.arguments?.getString("text")
-                DetailScreen(imageId = imageId!!, text = text!!, animatedVisibilityScope = this)
 
             }
         }
